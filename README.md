@@ -1,3 +1,11 @@
+---
+title: Drone Delivery Fleet OpenEnv
+emoji: 🚁
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
 # 🚁 Drone Delivery Fleet — OpenEnv Environment
 
 > **An AI agent routes a fleet of drones for last-mile delivery — managing battery life, weather windows, no-fly zones, and priority parcels simultaneously.**
