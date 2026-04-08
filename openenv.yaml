@@ -1,0 +1,125 @@
+environment_name: drone-delivery-fleet
+version: "1.0.0"
+description: >
+  Drone Delivery Fleet Optimisation — An AI agent routes a fleet of drones
+  for last-mile delivery, managing battery life, weather windows, no-fly zones,
+  and priority parcels simultaneously on a configurable grid world.
+
+author: Ananya
+license: MIT
+
+# ---------- observation / action spaces ----------
+observation_space:
+  type: object
+  description: Full state of the delivery environment
+  properties:
+    drones:
+      type: array
+      items:
+        type: object
+        properties:
+          id:        { type: string }
+          x:         { type: integer, description: "Grid X position" }
+          y:         { type: integer, description: "Grid Y position" }
+          battery:   { type: number,  description: "0.0–100.0" }
+          carrying_parcel: { type: string, nullable: true }
+    parcels:
+      type: array
+      items:
+        type: object
+        properties:
+          id:        { type: string }
+          x:         { type: integer }
+          y:         { type: integer }
+          priority:  { type: boolean }
+          delivered: { type: boolean }
+    no_fly_zones:
+      type: array
+      items:
+        type: object
+        properties:
+          x_min: { type: integer }
+          x_max: { type: integer }
+          y_min: { type: integer }
+          y_max: { type: integer }
+    recharge_stations:
+      type: array
+      items:
+        type: object
+        properties:
+          x: { type: integer }
+          y: { type: integer }
+    weather:    { type: string, enum: [clear, windy, stormy] }
+    step_count: { type: integer }
+    max_steps:  { type: integer }
+    grid_size:  { type: integer }
+
+action_space:
+  type: object
+  properties:
+    drone_id: { type: string, description: "ID of the drone to command" }
+    action:
+      type: string
+      enum:
+        - move_north
+        - move_south
+        - move_east
+        - move_west
+        - deliver
+        - recharge
+        - wait
+
+# ---------- reward structure ----------
+reward:
+  range: [-0.5, 3.5]
+  description: >
+    Step costs (-0.01 move, -0.02 wait, -0.05 invalid),
+    penalties (-0.1 OOB, -0.3 no-fly violation, -0.5 dead battery),
+    rewards (+1.0 deliver, +1.5 priority deliver, +0.1 recharge, +2.0 all done).
+
+# ---------- tasks ----------
+tasks:
+  - id: easy
+    name: "Easy — No-Constraint Delivery"
+    description: "3 drones, 5 parcels, clear weather, no obstacles"
+    script: tasks/easy.py
+    entry_point: run_easy_task
+    difficulty: easy
+    expected_baseline_score: 1.0
+
+  - id: medium
+    name: "Medium — Battery Management"
+    description: "3 drones, 7 parcels, windy weather (2× drain), 1 no-fly zone"
+    script: tasks/medium.py
+    entry_point: run_medium_task
+    difficulty: medium
+    expected_baseline_score: 1.0
+
+  - id: hard
+    name: "Hard — Storm + No-Fly + Priority"
+    description: "2 drones, 8 parcels, stormy weather (4× drain), 2 no-fly zones, 2 priority parcels"
+    script: tasks/hard.py
+    entry_point: run_hard_task
+    difficulty: hard
+    expected_baseline_score: 1.0
+
+# ---------- environment API ----------
+api:
+  reset:
+    description: "Initialise/reset the environment and return the starting state."
+    returns: DroneDeliveryState
+  step:
+    description: "Execute one action. Returns StepResult(state, reward, done, info)."
+    parameters:
+      - name: action
+        type: StepAction
+    returns: StepResult
+  state:
+    description: "Return the current environment state without advancing."
+    returns: DroneDeliveryState
+
+# ---------- deployment ----------
+deployment:
+  platform: huggingface-spaces
+  sdk: gradio
+  dockerfile: Dockerfile

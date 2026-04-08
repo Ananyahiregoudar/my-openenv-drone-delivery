@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drone-delivery-env"
+version = "1.0.0"
+description = "Drone Delivery Fleet - OpenEnv environment"
+authors = [
+    { name = "Ananya" }
+]
+dependencies = [
+    "pydantic>=2.0",
+    "gradio>=4.0",
+    "pyyaml>=6.0",
+    "openai",
+    "openenv-core>=0.2.0"
+]
+
+[project.scripts]
+server = "server.app:main"
