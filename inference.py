@@ -5,8 +5,8 @@ from typing import List, Optional
 
 from openai import OpenAI
 
-from environment import DroneDeliveryEnvironment
-from models import WeatherCondition, StepAction, DroneAction
+from drone_delivery_env.environment import DroneDeliveryEnvironment
+from drone_delivery_env.models import WeatherCondition, StepAction, DroneAction
 
 API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY") or "dummy-key"
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"

@@ -12,14 +12,12 @@ Deployed on HuggingFace Spaces via Docker.
 import sys
 import os
 import gradio as gr
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from environment import DroneDeliveryEnvironment
-from models import WeatherCondition, StepAction, DroneAction
-from tasks.easy   import run_easy_task,   greedy_action
-from tasks.medium import run_medium_task, battery_aware_action
-from tasks.hard   import run_hard_task,   obstacle_aware_action
+import time
+from drone_delivery_env.environment import DroneDeliveryEnvironment
+from drone_delivery_env.models import WeatherCondition, DroneAction, StepAction, DroneDeliveryState
+from drone_delivery_env.tasks.easy   import run_easy_task,   greedy_action
+from drone_delivery_env.tasks.medium import run_medium_task, battery_aware_action
+from drone_delivery_env.tasks.hard   import run_hard_task,   obstacle_aware_action
 
 # ─────────────────────────────────────────────────────────
 #  Grid Visualiser (text-based for maximum compatibility)
@@ -268,5 +266,25 @@ Built for the OpenEnv Hackathon • [View Source](https://github.com)
 
 
 if __name__ == "__main__":
-    app = build_app()
-    app.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    import uvicorn
+    from openenv.core.env_server.http_server import create_app
+    from drone_delivery_env.environment import DroneDeliveryEnvironment
+    from drone_delivery_env.models import StepAction
+    
+    # 1. Create standard OpenEnv API server
+    fastapi_app = create_app(
+        DroneDeliveryEnvironment,
+        StepAction,
+        DroneDeliveryState,  # observation type
+        env_name="drone-delivery-fleet",
+        max_concurrent_envs=1,
+    )
+    
+    # 2. Build Gradio UI
+    demo = build_app()
+    
+    # 3. Mount Gradio at root (OpenEnv specific routes like /reset remain preserved)
+    app = gr.mount_gradio_app(fastapi_app, demo, path="/")
+    
+    # Run the unified server
+    uvicorn.run(app, host="0.0.0.0", port=7860)

@@ -3,7 +3,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from environment import DroneDeliveryEnvironment
+from drone_delivery_env.environment import DroneDeliveryEnvironment
 
 def main():
     # This is a dummy OpenEnv server entrypoint for validation purposes.

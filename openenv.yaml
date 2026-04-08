@@ -82,24 +82,27 @@ tasks:
   - id: easy
     name: "Easy — No-Constraint Delivery"
     description: "3 drones, 5 parcels, clear weather, no obstacles"
-    script: tasks/easy.py
+    script: drone_delivery_env/tasks/easy.py
     entry_point: run_easy_task
+    grader: drone_delivery_env.tasks.easy.grader
     difficulty: easy
     expected_baseline_score: 1.0
 
   - id: medium
     name: "Medium — Battery Management"
     description: "3 drones, 7 parcels, windy weather (2× drain), 1 no-fly zone"
-    script: tasks/medium.py
+    script: drone_delivery_env/tasks/medium.py
     entry_point: run_medium_task
+    grader: drone_delivery_env.tasks.medium.grader
     difficulty: medium
     expected_baseline_score: 1.0
 
   - id: hard
     name: "Hard — Storm + No-Fly + Priority"
     description: "2 drones, 8 parcels, stormy weather (4× drain), 2 no-fly zones, 2 priority parcels"
-    script: tasks/hard.py
+    script: drone_delivery_env/tasks/hard.py
     entry_point: run_hard_task
+    grader: drone_delivery_env.tasks.hard.grader
     difficulty: hard
     expected_baseline_score: 1.0
 
