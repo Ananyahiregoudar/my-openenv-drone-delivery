@@ -56,6 +56,9 @@ class DroneDeliveryState(BaseModel):
     step_count: int
     max_steps: int
     grid_size: int
+    reward: float = 0.0
+    done: bool = False
+    info: dict = {}
  
  
 class StepAction(BaseModel):

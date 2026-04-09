@@ -13,6 +13,8 @@ import sys
 import os
 import gradio as gr
 import time
+import uvicorn
+from openenv.core.env_server.http_server import create_app
 from drone_delivery_env.environment import DroneDeliveryEnvironment
 from drone_delivery_env.models import WeatherCondition, DroneAction, StepAction, DroneDeliveryState
 from drone_delivery_env.tasks.easy   import run_easy_task,   greedy_action
@@ -117,8 +119,8 @@ TASK_CONFIG = {
 
 def run_baseline(difficulty: str, seed: int):
     """Run baseline agent on selected difficulty, return results."""
-    import tasks.medium as med_mod
-    import tasks.hard   as hard_mod
+    import drone_delivery_env.tasks.medium as med_mod
+    import drone_delivery_env.tasks.hard   as hard_mod
 
     # Reset module-level coordination globals
     med_mod._turn_index = 0
@@ -265,26 +267,22 @@ Built for the OpenEnv Hackathon • [View Source](https://github.com)
     return demo
 
 
+# 1. Create standard OpenEnv API server
+fastapi_app = create_app(
+    DroneDeliveryEnvironment,
+    StepAction,
+    DroneDeliveryState,  # observation type
+    env_name="drone-delivery-fleet",
+    max_concurrent_envs=1,
+)
+
+# 2. Build Gradio UI
+demo = build_app()
+
+# 3. Mount Gradio at root (OpenEnv specific routes like /reset remain preserved)
+app = gr.mount_gradio_app(fastapi_app, demo, path="/")
+
+
 if __name__ == "__main__":
-    import uvicorn
-    from openenv.core.env_server.http_server import create_app
-    from drone_delivery_env.environment import DroneDeliveryEnvironment
-    from drone_delivery_env.models import StepAction
-    
-    # 1. Create standard OpenEnv API server
-    fastapi_app = create_app(
-        DroneDeliveryEnvironment,
-        StepAction,
-        DroneDeliveryState,  # observation type
-        env_name="drone-delivery-fleet",
-        max_concurrent_envs=1,
-    )
-    
-    # 2. Build Gradio UI
-    demo = build_app()
-    
-    # 3. Mount Gradio at root (OpenEnv specific routes like /reset remain preserved)
-    app = gr.mount_gradio_app(fastapi_app, demo, path="/")
-    
     # Run the unified server
     uvicorn.run(app, host="0.0.0.0", port=7860)

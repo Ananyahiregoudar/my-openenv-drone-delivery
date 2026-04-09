@@ -124,5 +124,5 @@ api:
 # ---------- deployment ----------
 deployment:
   platform: huggingface-spaces
-  sdk: gradio
+  sdk: docker
   dockerfile: Dockerfile

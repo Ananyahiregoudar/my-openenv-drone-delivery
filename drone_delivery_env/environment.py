@@ -228,4 +228,22 @@ class DroneDeliveryEnvironment:
             efficiency = 1.0 - (self.state.step_count / self.state.max_steps)
             base += 0.2 * efficiency
         return round(min(base, 1.0), 4)
+
+    def close(self):
+        """Clean up resources (not needed for this environment)."""
+        pass
+
+    async def reset_async(self):
+        """Asynchronous version of reset."""
+        return self.reset()
+
+    async def step_async(self, action):
+        """Asynchronous version of step."""
+        return self.step(action)
+
+    async def get_state_async(self):
+        """Asynchronous version of get_state."""
+        return self.get_state()
+
+
         
