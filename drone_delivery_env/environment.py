@@ -217,17 +217,21 @@ class DroneDeliveryEnvironment:
     # ------------------------------------------------------------------ #
     def score(self) -> float:
         if self.state is None:
-            return 0.0
+            return 0.01
         total    = len(self.state.parcels)
         delivered = sum(1 for p in self.state.parcels if p.delivered)
         if total == 0:
-            return 0.0
+            return 0.01
         # partial credit for each parcel + time efficiency bonus
         base = delivered / total
         if delivered == total:
             efficiency = 1.0 - (self.state.step_count / self.state.max_steps)
             base += 0.2 * efficiency
-        return round(min(base, 1.0), 4)
+        
+        # Clamp to strict (0, 1) range for Phase 2 validator
+        score = min(max(base, 0.01), 0.99)
+        return round(score, 4)
+
 
     def close(self):
         """Clean up resources (not needed for this environment)."""

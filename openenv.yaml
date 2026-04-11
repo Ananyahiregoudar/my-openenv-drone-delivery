@@ -86,7 +86,7 @@ tasks:
     entry_point: run_easy_task
     grader: drone_delivery_env.tasks.easy.grader
     difficulty: easy
-    expected_baseline_score: 1.0
+    expected_baseline_score: 0.95
 
   - id: medium
     name: "Medium — Battery Management"
@@ -95,7 +95,7 @@ tasks:
     entry_point: run_medium_task
     grader: drone_delivery_env.tasks.medium.grader
     difficulty: medium
-    expected_baseline_score: 1.0
+    expected_baseline_score: 0.95
 
   - id: hard
     name: "Hard — Storm + No-Fly + Priority"
@@ -104,7 +104,7 @@ tasks:
     entry_point: run_hard_task
     grader: drone_delivery_env.tasks.hard.grader
     difficulty: hard
-    expected_baseline_score: 1.0
+    expected_baseline_score: 0.95
 
 # ---------- environment API ----------
 api:

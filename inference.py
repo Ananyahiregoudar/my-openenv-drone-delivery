@@ -135,7 +135,7 @@ def run_episode(client: OpenAI, task_name: str) -> None:
     history: List[str] = []
     rewards: List[float] = []
     steps_taken = 0
-    score = 0.0
+    score = 0.01
     success = False
 
     log_start(task=task_name, env_name="drone-delivery-fleet", model=MODEL_NAME)

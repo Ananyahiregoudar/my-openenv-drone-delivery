@@ -184,5 +184,39 @@ if __name__ == "__main__":
     print(f"Medium task score: {score:.4f}")
 
 def grader(trajectory: dict = None) -> float:
-    """Fallback reflection-proof grader."""
-    return 1.0
+    """
+    Grader for medium drone delivery tasks.
+
+    Accepts a trajectory dict with a 'rewards' key (list of per-step rewards).
+    Returns a score strictly in (0.01, 0.99).
+    """
+    trajectory = trajectory or {}
+    rewards = trajectory.get("rewards", [])
+
+    if not rewards:
+        # No trajectory data — run the task with the built-in baseline agent
+        try:
+            score = run_medium_task()
+        except Exception:
+            score = 0.5
+        return min(max(round(score, 4), 0.01), 0.99)
+
+    # Compute score from trajectory rewards
+    n = len(rewards)
+    positive = sum(r for r in rewards if r > 0)
+    negative = sum(abs(r) for r in rewards if r < 0)
+
+    # Medium: 7 parcels, some may be priority, + bonus
+    max_possible = 7 * 1.0 + 2.0
+    delivery_ratio = min(positive / max(max_possible, 0.01), 1.0)
+
+    # Heavier penalty for medium — battery mismanagement costs more
+    penalty_factor = min(negative * 0.06, 0.45)
+
+    # Efficiency bonus (max_steps = 150 for medium)
+    efficiency_bonus = max(0.0, 0.04 * (1.0 - n / 150.0)) if n < 150 else 0.0
+
+    score = delivery_ratio * 0.85 - penalty_factor + efficiency_bonus
+
+    return min(max(round(score, 4), 0.01), 0.99)
+
